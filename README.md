@@ -1,0 +1,2 @@
+# ProiectPython
+ProiectPython - Echipa Petarda!!!
