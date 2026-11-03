@@ -6,7 +6,7 @@ from scene import Scene
 pygame.init()
 screenWidth, screenHeight = 1280, 720
 screen = pygame.display.set_mode((screenWidth, screenHeight))
-title_screen = "Petarda"
+title_screen = "tarda"
 pygame.display.set_caption(title_screen)
 
 clock = pygame.time.Clock()
