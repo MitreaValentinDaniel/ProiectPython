@@ -2,11 +2,12 @@ import pygame
 
 
 from scene import Scene
+from scene import score
 
 pygame.init()
 screenWidth, screenHeight = 1280, 720
 screen = pygame.display.set_mode((screenWidth, screenHeight))
-title_screen = "tarda"
+title_screen = ("tsarda")
 pygame.display.set_caption(title_screen)
 
 clock = pygame.time.Clock()
@@ -26,3 +27,4 @@ while running:
     clock.tick(60)
 
 pygame.quit()
+print(score)

@@ -1,7 +1,7 @@
 import pygame
 
 from gameLogic import GameLogic
-
+from gameLogic import score
 
 class Scene:
     sceneImage = None
