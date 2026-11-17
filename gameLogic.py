@@ -10,7 +10,7 @@ leftKey = pygame.K_f
 rightKey = pygame.K_j
 upKey = pygame.K_h
 downKey = pygame.K_g
-score = -0
+score = 0
 
 
 class GameLogic:
@@ -33,7 +33,6 @@ class GameLogic:
     downVectorArrows = []
 
     def __init__(self):
-
         print("Game Logic Assets initialised")
         self.leftArrow = pygame.image.load("assets/leftArrow.png")
         self.rightArrow = pygame.image.load("assets/rightArrow.png")
@@ -46,6 +45,9 @@ class GameLogic:
         self.PressedDownArrow = pygame.image.load("assets/PresseddownArrow.png")
 
         self.font = pygame.font.SysFont(None, 24)
+
+        # Timer for score penalty cooldown (in milliseconds)
+        self.last_penalty_time = 0
 
         # --- ANALIZĂ SPECTRALĂ ȘI DE AMPLITUDINE (RMS & ONSETS) ---
         audio_path = "assets/song.mp3"
@@ -90,13 +92,14 @@ class GameLogic:
     def update(self, screen):
         global score
         keys = pygame.key.get_pressed()
+        current_time = pygame.time.get_ticks()
 
         screen.blit(self.leftArrow, (self.arrowPosX, self.arrowsPosY))
         screen.blit(self.downArrow, (self.arrowPosX + self.distanceBetweenArrows, self.arrowsPosY))
         screen.blit(self.upArrow, (self.arrowPosX + self.distanceBetweenArrows * 2, self.arrowsPosY))
         screen.blit(self.rightArrow, (self.arrowPosX + self.distanceBetweenArrows * 3, self.arrowsPosY))
 
-        hit_tolerance = 30
+        hit_tolerance = 50
 
         # --- GENERARE AUTOMATĂ DUPĂ TIMPUL MELODIEI (SINCRONIZAT CU GET_TICKS) ---
         currentSongTime = pygame.time.get_ticks() - self.music_start_ticks
@@ -127,59 +130,67 @@ class GameLogic:
 
         if keys[leftKey]:
             screen.blit(self.PressedLeftArrow, (self.arrowPosX, self.arrowsPosY))
+            hit_found = False
             for arrow in self.arrowEntityVector[:]:
                 if arrow.posX == self.arrowPosX and abs(arrow.posY - self.arrowsPosY) <= hit_tolerance:
                     score += 100
                     print(f"HIT LEFT! Score: {score}")
                     self.arrowEntityVector.remove(arrow)
+                    hit_found = True
                     break
+            if not hit_found:
+                # Deduct score only once every 1 second (1000 ms)
+                if current_time - self.last_penalty_time >= 1000:
+                    score -= 25
+                    self.last_penalty_time = current_time
 
         if keys[rightKey]:
             screen.blit(self.PressedRightArrow, (self.arrowPosX + self.distanceBetweenArrows * 3, self.arrowsPosY))
+            hit_found = False
             for arrow in self.arrowEntityVector[:]:
                 if arrow.posX == self.arrowPosX + self.distanceBetweenArrows * 3 and abs(
                         arrow.posY - self.arrowsPosY) <= hit_tolerance:
                     score += 100
                     print(f"HIT RIGHT! Score: {score}")
                     self.arrowEntityVector.remove(arrow)
+                    hit_found = True
                     break
+            if not hit_found:
+                if current_time - self.last_penalty_time >= 1000:
+                    score -= 25
+                    self.last_penalty_time = current_time
 
         if keys[upKey]:
             screen.blit(self.PressedUpArrow, (700 + self.distanceBetweenArrows * 2, self.arrowsPosY))
+            hit_found = False
             for arrow in self.arrowEntityVector[:]:
                 if arrow.posX == self.arrowPosX + self.distanceBetweenArrows * 2 and abs(
                         arrow.posY - self.arrowsPosY) <= hit_tolerance:
                     score += 100
                     print(f"HIT UP! Score: {score}")
                     self.arrowEntityVector.remove(arrow)
+                    hit_found = True
                     break
+            if not hit_found:
+                if current_time - self.last_penalty_time >= 1000:
+                    score -= 25
+                    self.last_penalty_time = current_time
 
         if keys[downKey]:
             screen.blit(self.PressedDownArrow, (700 + self.distanceBetweenArrows * 1, self.arrowsPosY))
+            hit_found = False
             for arrow in self.arrowEntityVector[:]:
                 if arrow.posX == self.arrowPosX + self.distanceBetweenArrows and abs(
                         arrow.posY - self.arrowsPosY) <= hit_tolerance:
                     score += 100
                     print(f"HIT DOWN! Score: {score}")
                     self.arrowEntityVector.remove(arrow)
+                    hit_found = True
                     break
-
-        # Test manual cu tastele F, G, H, J
-        # if keys[pygame.K_f]:
-        #     self.arrowEntityVector.append(
-        #         ArrowEntity(self.arrowPosX, screen.get_height() - self.arrowHeight, self.leftArrow, "left"))
-        # if keys[pygame.K_g]:
-        #     self.arrowEntityVector.append(
-        #         ArrowEntity(self.arrowPosX + self.distanceBetweenArrows, screen.get_height() - self.arrowHeight,
-        #                     self.downArrow, "down"))
-        # if keys[pygame.K_h]:
-        #     self.arrowEntityVector.append(
-        #         ArrowEntity(self.arrowPosX + self.distanceBetweenArrows * 2, screen.get_height() - self.arrowHeight,
-        #                     self.upArrow, "up"))
-        # if keys[pygame.K_j]:
-        #     self.arrowEntityVector.append(
-        #         ArrowEntity(self.arrowPosX + self.distanceBetweenArrows * 3, screen.get_height() - self.arrowHeight,
-        #                     self.rightArrow, "right"))
+            if not hit_found:
+                if current_time - self.last_penalty_time >= 1000:
+                    score -= 25
+                    self.last_penalty_time = current_time
 
         for arrow in self.arrowEntityVector[:]:
             arrow.update(screen, score)
