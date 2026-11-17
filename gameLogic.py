@@ -10,7 +10,7 @@ leftKey = pygame.K_f
 rightKey = pygame.K_j
 upKey = pygame.K_h
 downKey = pygame.K_g
-score = 0
+score = -0
 
 
 class GameLogic:
